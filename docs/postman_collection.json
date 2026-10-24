@@ -1,0 +1,173 @@
+{
+  "info": {
+    "name": "SecureText Cryptographic Cloud Messaging API",
+    "_postman_id": "9a1e0b52-f472-4d2c-87d2-748956923984",
+    "description": "Postman collection for SecureText: Diffie-Hellman Key Exchange (X25519) + HKDF-SHA-256 + AES-256-GCM + Ed25519 Signatures in a Zero-Knowledge Cloud Environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"researcher@securetext.local\",\n  \"fullName\": \"Research Student\",\n  \"password\": \"SecurePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) {",
+              "  pm.collectionVariables.set(\"authToken\", jsonData.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"alice@securetext.local\",\n  \"password\": \"AlicePass123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Auth - Current User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Keys - List Directory",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/keys/directory",
+          "host": ["{{baseUrl}}"],
+          "path": ["keys", "directory"]
+        }
+      }
+    },
+    {
+      "name": "Messages - Send Encrypted Envelope",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messageId\": \"msg_test_envelope_001\",\n  \"recipientId\": \"usr_bob_demo_002\",\n  \"protocolVersion\": \"SecureText-v1.0\",\n  \"senderKeyId\": \"key_alice_01\",\n  \"recipientKeyId\": \"key_bob_01\",\n  \"ephemeralPublicKey\": \"pX57BkWp7eB0Q97qZ2K+2kUu5u7u2u7u2u7u2u7u2u4=\",\n  \"nonce\": \"MTIzNDU2Nzg5MDEy\",\n  \"ciphertext\": \"h92X/h72k9h8...=\",\n  \"authTag\": \"AAAAAAAAAAAAAAAAAAAAAA==\",\n  \"signature\": \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==\",\n  \"canonicalAAD\": \"{\\\"version\\\":\\\"SecureText-v1.0\\\",\\\"messageId\\\":\\\"msg_test_envelope_001\\\"}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages"]
+        }
+      }
+    },
+    {
+      "name": "Messages - Get Stored Messages",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages"]
+        }
+      }
+    },
+    {
+      "name": "Cloud Vault - Inspect Ciphertext at Rest",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/vault",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "vault"]
+        }
+      }
+    },
+    {
+      "name": "Security - Event Audit Trail",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/security/events",
+          "host": ["{{baseUrl}}"],
+          "path": ["security", "events"]
+        }
+      }
+    }
+  ]
+}

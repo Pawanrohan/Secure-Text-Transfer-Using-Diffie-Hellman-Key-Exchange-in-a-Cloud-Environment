@@ -1,0 +1,21 @@
+{
+  "name": "securetext-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@securetext/shared && npm run build --workspace=@securetext/backend && npm run build --workspace=@securetext/frontend",
+    "dev:backend": "npm run dev --workspace=@securetext/backend",
+    "dev:frontend": "npm run dev --workspace=@securetext/frontend",
+    "test": "npm run test --workspace=@securetext/backend",
+    "benchmark": "npm run benchmark --workspace=@securetext/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  }
+}
