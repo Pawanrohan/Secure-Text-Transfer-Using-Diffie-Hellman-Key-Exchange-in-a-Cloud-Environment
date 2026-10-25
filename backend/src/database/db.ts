@@ -51,18 +51,26 @@ class SqliteWasmAdapter implements DatabaseAdapter {
   private persist() {
     if (this.saveTimeout) clearTimeout(this.saveTimeout);
     this.saveTimeout = setTimeout(() => {
-      try {
-        const data = this.db.export();
-        const buffer = Buffer.from(data);
-        const dir = path.dirname(this.filePath);
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir, { recursive: true });
-        }
-        fs.writeFileSync(this.filePath, buffer);
-      } catch (err) {
-        console.error('Failed to persist SQLite database to disk:', err);
-      }
+      this.persistSync();
     }, 100);
+  }
+
+  persistSync() {
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+      this.saveTimeout = null;
+    }
+    try {
+      const data = this.db.export();
+      const buffer = Buffer.from(data);
+      const dir = path.dirname(this.filePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(this.filePath, buffer);
+    } catch (err) {
+      console.error('Failed to persist SQLite database to disk:', err);
+    }
   }
 
   async query<T = any>(sql: string, params: any[] = []): Promise<T[]> {
@@ -94,10 +102,8 @@ class SqliteWasmAdapter implements DatabaseAdapter {
   }
 
   async close(): Promise<void> {
-    if (this.saveTimeout) clearTimeout(this.saveTimeout);
+    this.persistSync();
     try {
-      const data = this.db.export();
-      fs.writeFileSync(this.filePath, Buffer.from(data));
       this.db.close();
     } catch {
       // ignore on exit
@@ -120,7 +126,21 @@ export async function getDatabase(): Promise<DatabaseAdapter> {
   }
 
   // Default to WASM SQLite for seamless local execution
-  const sqlitePath = process.env.SQLITE_DB_PATH || path.resolve(process.cwd(), 'data', 'securetext.db');
+  let sqlitePath = process.env.SQLITE_DB_PATH;
+  if (!sqlitePath) {
+    const candidate1 = path.resolve(process.cwd(), 'data', 'securetext.db');
+    const candidate2 = path.resolve(process.cwd(), 'backend', 'data', 'securetext.db');
+    const candidate3 = path.resolve(process.cwd(), '..', 'backend', 'data', 'securetext.db');
+    if (fs.existsSync(candidate1)) {
+      sqlitePath = candidate1;
+    } else if (fs.existsSync(candidate2)) {
+      sqlitePath = candidate2;
+    } else if (fs.existsSync(candidate3)) {
+      sqlitePath = candidate3;
+    } else {
+      sqlitePath = candidate1;
+    }
+  }
   console.log(`[DB] Initializing local persistent SQLite database at: ${sqlitePath}`);
 
   const SQL = await initSqlJs();
