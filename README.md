@@ -243,3 +243,5 @@ Secure text project/
 1. **Traffic Analysis & Metadata**: The cloud server records routing metadata (sender ID, recipient ID, message length, and upload timestamp). Future research can integrate fixed-length payload padding and onion routing (e.g., Mixnets) to mask traffic patterns.
 2. **Public Key Directory Trust**: Key bundles are currently authenticated via Ed25519 self-signatures and verified out-of-band using 60-digit safety numbers. A future iteration can incorporate an append-only verifiable transparency log (such as CONIKS or Certificate Transparency) for automated server auditing.
 3. **Multi-Device Synchronization**: The current prototype demonstrates a single keypair per user profile. Extending the protocol to support multiple registered client devices with Signal-style Double Ratchet and pre-key bundles (X3DH) represents a valuable research extension.
+#   S e c u r e - T e x t - T r a n s f e r - U s i n g - D i f f i e - H e l l m a n - K e y - E x c h a n g e - i n - a - C l o u d - E n v i r o n m e n t  
+ 
